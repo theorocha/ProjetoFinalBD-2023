@@ -1,0 +1,19 @@
+{% extends 'base.html'%} {% block conteudo%}
+<h1 class="text-center mb-5 ">Departamentos da UnB</h1>
+<div class="container">
+  <div class="row">
+    {% for dpt in departamentos %}
+    <div class="col-md-4">
+      <div class="card my-4" style="width: 20rem">
+        <img src="../static/unblogo.png" class="card-img-top" alt="unb" />
+        <div class="font-monospace card-body text-center">
+          <h5 class="card-title mb-3">{{ dpt['nome'] }}</h5>
+          <a href="{{url_for('disciplinas', dpt_id = dpt['id'])}}" class="btn btn-primary">Ver Disciplinas</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+  {% endblock conteudo%}
+</div>

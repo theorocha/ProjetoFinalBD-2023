@@ -24,6 +24,7 @@ CREATE TABLE Professores (
   nome VARCHAR(100),
   email VARCHAR(100),
   departamento_id INTEGER UNSIGNED,
+  matricula VARCHAR(100),
   FOREIGN KEY (departamento_id) REFERENCES Departamentos(id)
 );
 
