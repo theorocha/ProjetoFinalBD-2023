@@ -1,0 +1,8 @@
+{% extends 'base.html'%} {% block conteudo%} {% for estudante in estudantes %}
+<div>
+  <p>Nome: {{ estudante['nome'] }}</p>
+  <p>Matrícula: {{ estudante['matricula'] }}</p>
+  <p>Email: {{ estudante['email'] }}</p>
+  <p>Curso: {{ estudante['curso'] }}</p>
+</div>
+{% endfor %} {% endblock conteudo%}
