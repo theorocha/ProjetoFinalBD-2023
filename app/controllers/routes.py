@@ -78,28 +78,6 @@ def disciplinas(dpt_id):
         return f"Erro de conexão ao banco de dados: {err}"
     
     
-    
-@app.route('/turmas/<disciplina_id>')
-@login_required
-def turmas(disciplina_id):
-    try:
-        cnx = mysql.connector.connect(**config)
-        cursor = cnx.cursor(dictionary=True)
-        query = f"SELECT t.id, t.disciplina_id, t.professor_id, p.nome AS nome_professor FROM Turmas t INNER JOIN Professores p ON t.professor_id = p.id WHERE disciplina_id = {disciplina_id}"
-        cursor.execute(query)
-        turmas_com_prof = cursor.fetchall()
-        cursor.close()
-        cnx.close()
-
-        nome_disciplina = obter_nome_disciplina(disciplina_id)
-
-        return render_template('turmas.html', turmas_com_prof=turmas_com_prof, disciplina=nome_disciplina)
-
-    except mysql.connector.Error as err:
-        return f"Erro de conexão ao banco de dados: {err}"
-    
-
-    
 @app.route('/registerES', methods=['GET', 'POST'])
 def registerES():
     if request.method == 'POST':
@@ -337,7 +315,79 @@ def professores():
 
     except mysql.connector.Error as err:
         return f"Erro de conexão ao banco de dados: {err}"
+    
+@app.route('/turmas/<disciplina_id>')
+@login_required
+def turmas(disciplina_id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query = f"SELECT t.id, t.disciplina_id, t.professor_id, p.nome AS nome_professor FROM Turmas t INNER JOIN Professores p ON t.professor_id = p.id WHERE disciplina_id = {disciplina_id}"
+        cursor.execute(query)
+        turmas_com_prof = cursor.fetchall()
+        cursor.close()
+        cnx.close()
 
+        nome_disciplina = obter_nome_disciplina(disciplina_id)
+
+        return render_template('turmas.html', turmas_com_prof=turmas_com_prof, disciplina=nome_disciplina)
+
+    except mysql.connector.Error as err:
+        return f"Erro de conexão ao banco de dados: {err}"
+    
+@app.route('/avaliacoes/<int:turma_id>')
+@login_required
+def avaliacoes(turma_id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query = f"""
+            SELECT a.id, a.nota, a.comentario, a.estudante_id AS estudante_avaliador_id, e.nome AS nome_estudante, t.id AS turma_id
+            FROM Avaliacoes a
+            INNER JOIN Estudantes e ON a.estudante_id = e.id
+            INNER JOIN Turmas t ON a.turma_id = t.id
+            WHERE a.turma_id = {turma_id}
+        """
+
+        cursor.execute(query)
+        avaliacoes = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+
+        return render_template('avaliacoes.html', avaliacoes=avaliacoes, turma_id=turma_id)
+
+    except mysql.connector.Error as err:
+        return f"Erro de conexão ao banco de dados: {err}"
+    
+@app.route('/formaval/<int:turma_id>')
+@login_required
+def formaval(turma_id):
+    return render_template('formAval.html', turma_id = turma_id)
+
+@app.route('/criaval/<int:turma_id>', methods=['GET', 'POST'])
+@login_required
+def criaval(turma_id):
+    if request.method == 'POST':
+        nota = request.form['nota']
+        comentario = request.form['comentario']
+        estudante_id = session['usuario']['id']
+        
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor()
+            query = "INSERT INTO Avaliacoes (estudante_id, turma_id, nota, comentario) VALUES (%s, %s, %s, %s)"
+            values = (estudante_id, turma_id, nota, comentario)
+            cursor.execute(query, values)
+            cnx.commit()
+            cursor.close()
+            cnx.close()
+            
+            return redirect(url_for('avaliacoes', turma_id=turma_id))
+        
+        except mysql.connector.Error as err:
+            return f"Erro ao cadastrar avaliação: {err}"
+    
+    return redirect(url_for('avaliacoes', turma_id=turma_id))
     
 
 #################################################################################################

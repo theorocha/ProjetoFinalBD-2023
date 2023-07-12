@@ -18,7 +18,11 @@
         <div class="font-monospace card-body text-center">
           <h5 class="card-title mb-3">Turma {{ turma['id'] }}</h5>
           <p>Professor: {{ turma['nome_professor'] }}</p>
-          <a href="#" class="btn btn-primary">Avaliações</a>
+          <a
+            href="{{ url_for('avaliacoes', turma_id=turma['id']) }}"
+            class="btn btn-primary"
+            >Avaliações</a
+          >
         </div>
       </div>
     </div>

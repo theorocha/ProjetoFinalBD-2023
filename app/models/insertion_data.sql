@@ -133,3 +133,11 @@ INSERT INTO turmas(disciplina_id, professor_id)
 VALUES (13,8);
 INSERT INTO turmas(disciplina_id, professor_id)
 VALUES (13,9);
+
+
+
+
+--avaliações
+INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('2', '1', '7', 'aula aceitavel');
+INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('1', '1', '4', 'aula muito chata');
+INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('1', '1', '10', 'Turma e professores muito bons');

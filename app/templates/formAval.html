@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="../static/bootstrap-5.3.0-dist/css/bootstrap.min.css"
+    />
+    <title>Nova avaliação</title>
+  </head>
+  <body>
+    <div class="container p-5">
+      <h1 class="text-center my-4">Nova Avaliação para a turma {{turma_id}}</h1>
+      <form
+        method="POST"
+        action="{{ url_for('criaval', turma_id=turma_id) }}"
+        class="form-control p-5"
+      >
+        <div class="form-group">
+          <label for="nota">Nota</label>
+          <input
+            type="number"
+            class="form-control mb-5"
+            id="nota"
+            name="nota"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="comentario">Comentário</label>
+          <textarea
+            class="form-control mb-5"
+            id="comentario"
+            name="comentario"
+            rows="5"
+            required
+          ></textarea>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-outline-success w-25">
+            Criar Avaliação
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
