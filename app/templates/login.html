@@ -54,7 +54,9 @@
                 <a href="{{ url_for('registerES')}}">Registrar</a>
               </p>
               {% if mensagem %}
-              <p class="error-message" style="color: brown">{{ mensagem }}</p>
+              <p class="error-message ms-4" style="color: brown">
+                {{ mensagem }}
+              </p>
               {% endif %}
             </div>
           </form>

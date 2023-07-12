@@ -7,7 +7,6 @@ CREATE TABLE Estudantes (
   email VARCHAR(100),
   curso VARCHAR(100),
   senha VARCHAR(100),
-  foto BLOB
 );
 
 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block conteudo %} {% if
+session['usuario']['matricula'] == '00' %}
+<h1 class="text-center my-5">Professores da UnB</h1>
+<br />
+<div class="container">
+  <a href="{{url_for('registerPR')}}" class="btn btn-primary mb-4"
+    >Adicionar Professor</a
+  >
+  <div class="row">
+    {% for p in professores %}
+    <div class="col-md-4">
+      <div class="card my-4" style="width: 20rem">
+        <img src="../static/prof.jpg" class="card-img-top" alt="unb" />
+        <div class="font-monospace card-body text-center">
+          <h5 class="card-title mb-3">{{ p['nome_professor'] }}</h5>
+          <p class="card-text">Departamento de {{ p['nome_departamento'] }}</p>
+          <a
+            href="{{ url_for('editProf', id = p['id']) }}"
+            class="btn btn-primary"
+            >Editar</a
+          >
+          <a
+            href="{{ url_for('deleteProf', id = p['id']) }}"
+            class="btn btn-danger"
+            >Excluir</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="text-center">
+  <h1 class="my-5">Sem Permissão para vizualizar essa sessão!</h1>
+  <a href="{{url_for('departamentos')}}" class="btn btn-danger w-50 h-50"
+    >Voltar</a
+  >
+</div>
+{% endif %} {% endblock %}

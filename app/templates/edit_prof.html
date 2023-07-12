@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edite o professor</title>
+    <link rel="stylesheet" href="../static/bootstrap-5.3.0-dist/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <div class="mt-5 container">
+      <h1 class="text-center mb-5">Edição de Professor</h1>
+      <a href="{{ url_for('professores') }}" class="btn btn-primary mb-2">Voltar</a>
+
+      <form method="POST"  class="form-control mt-5" action="{{ url_for('updateProf') }}">
+        <input type="hidden" name="id" value="{{ professor['id'] }}" />
+        <div class="mb-3">
+          <label for="nome" class="form-label">Nome</label>
+          <input type="text" class="form-control" id="nome" name="nome" value="{{ professor['nome'] }}" required />
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" value="{{ professor['email'] }}" required />
+        </div>
+        <div class="mb-3">
+          <label for="departamento" class="form-label">Departamento</label>
+          <select class="form-select" id="departamento" name="departamento" required>
+            <option selected disabled>Selecione um departamento</option>
+            {% for departamento in departamentos %}
+            <option value="{{ departamento.id }}" {% if professor['departamento_id'] == departamento.id %}selected{% endif %}>{{ departamento.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="matricula" class="form-label">Matrícula</label>
+          <input type="text" class="form-control" id="matricula" name="matricula" value="{{ professor['matricula'] }}" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Atualizar</button>
+        {% if mensagem %}
+        <p class="error-message" style="color: brown">{{ mensagem }}</p>
+        {% endif %}
+      </form>
+    </div>
+  </body>
+</html>

@@ -122,14 +122,13 @@ def registerES():
             email = request.form['email']
             curso = request.form['curso']
             senha = request.form['senha']
-            foto = request.files['foto']
-            foto_data = foto.read()
+
             
             try:
                 cnx = mysql.connector.connect(**config)
                 cursor = cnx.cursor()
-                query = "INSERT INTO Estudantes (nome, matricula, email, curso, senha, foto) VALUES (%s, %s, %s, %s, %s, %s)"
-                values = (nome, matricula, email, curso, senha, foto_data)
+                query = "INSERT INTO Estudantes (nome, matricula, email, curso, senha) VALUES (%s, %s, %s, %s, %s)"
+                values = (nome, matricula, email, curso, senha)
                 cursor.execute(query, values)
                 cnx.commit()
                 cursor.close()
@@ -165,7 +164,7 @@ def registerPR():
             cursor.close()
             cnx.close()
 
-            return redirect('/') 
+            return redirect('/professores') 
 
         except mysql.connector.Error as err:
             return f"Erro de conexão ao banco de dados: {err}"
@@ -186,83 +185,160 @@ def registerPR():
             return f"Erro de conexão ao banco de dados: {err}"
         
 @app.route('/logout')
+@login_required
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@app.route('/meuperfil')
+@login_required
+def perfil():
+    return render_template('perfil.html')
+
+
+@app.route('/deleteprof/<int:id>')
+@login_required
+def deleteProf(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "DELETE FROM Professores WHERE id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return redirect(url_for('professores'))
+    except mysql.connector.Error as err:
+        return f"Erro ao excluir estudante do banco de dados: {err}"
+
+
+@app.route('/autodelete/<int:id>')
+@login_required
+def autoDelete(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "DELETE FROM Estudantes WHERE id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        session.clear()
+        return redirect(url_for('login'))
+    except mysql.connector.Error as err:
+        return f"Erro ao excluir estudante do banco de dados: {err}"
+    
+
+@app.route('/selfEditProfile',methods=['GET', 'POST'])
+@login_required
+def editProfile():
+    return render_template('edit_profile.html')
+
+
+@app.route('/editProf/<int:id>',methods=['GET', 'POST'])
+@login_required
+def editProf(id):
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor(dictionary=True)
+    query = "SELECT id, nome FROM Departamentos"
+    cursor.execute(query)
+    departamentos = cursor.fetchall()
+    cursor.close()
+    cnx.close()
+    
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor(dictionary=True)
+    query = "SELECT * FROM Professores WHERE id = %s"
+    values = (id,)
+    cursor.execute(query, values)
+    professor = cursor.fetchone()
+    cursor.close()
+    cnx.close()
+    return render_template('edit_prof.html', departamentos=departamentos, professor = professor)
+
+
+
+@app.route('/updateProf', methods=['GET', 'POST'])
+@login_required
+def updateProf():
+    id = request.form['id']
+    nome = request.form['nome']
+    email = request.form['email']
+    departamento_id = request.form['departamento']
+    matricula = request.form['matricula']
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "UPDATE Professores SET nome = %s, email = %s, departamento_id = %s, matricula = %s WHERE id = %s"
+        values = (nome, email, departamento_id, matricula, id)
+        cursor.execute(query, values)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return redirect(url_for('professores'))
+    except mysql.connector.Error as err:
+        return f"Erro ao atualizar dados do professor no banco de dados: {err}"
+    
+
+
+@app.route('/updateProfile',methods=['GET', 'POST'])
+@login_required
+def updateProfile():
+    try:
+        nome = request.form['nome']
+        email = request.form['email']
+        curso = request.form['curso']
+        matricula = request.form['matricula']
+        senha = request.form['senha']
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "SELECT id FROM Estudantes WHERE matricula = %s"
+        cursor.execute(query, (matricula,))
+        result = cursor.fetchone()
+        cursor.close()
+        cnx.close()
+        if result:
+            mensagem ='Matrícula já possui cadastro'
+            return render_template('edit_profile.html', mensagem=mensagem)
+        else:
+            try:
+                cnx = mysql.connector.connect(**config)
+                cursor = cnx.cursor()
+                query = "UPDATE Estudantes SET nome = %s, email = %s, curso = %s, matricula = %s, senha = %s WHERE id = %s"
+                values = (nome, email, curso, matricula, senha, session['usuario']['id'])
+                cursor.execute(query, values)
+                cnx.commit()
+                cursor.close()
+                cnx.close()
+                return redirect(url_for('login'))
+
+            except mysql.connector.Error as err:
+                return f"Erro ao atualizar dados do usuário no banco de dados: {err}"
+            
+    except mysql.connector.Error as err:
+        return f"Erro ao atualizar dados do usuário no banco de dados: {err}"
+    
+@app.route('/professores')
+@login_required
+def professores():
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query = "SELECT p.id, p.nome AS nome_professor, d.nome AS nome_departamento FROM Professores p INNER JOIN Departamentos d ON p.departamento_id = d.id"
+        cursor.execute(query)
+        professores = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        
+        return render_template('prof.html', professores=professores)
+
+    except mysql.connector.Error as err:
+        return f"Erro de conexão ao banco de dados: {err}"
+
+    
 
 #################################################################################################
 #################################################################################################
@@ -316,7 +392,6 @@ def verificar_credenciais(matricula, senha):
     cursor.close()
     cnx.close()
     return result is not None
-
 
 
 def obter_usuario(matricula):
