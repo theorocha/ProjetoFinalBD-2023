@@ -24,7 +24,11 @@
       <div class="right-login">
         <div class="card-login">
           <h1 class="mb-2 info">Login</h1>
-          <form class="form-control m-5 p-4">
+          <form
+            class="form-control m-5 p-4"
+            method="POST"
+            action="{{ url_for('login') }}"
+          >
             <label for="matricula" class="form-label mb-4">Matrícula</label>
             <input
               type="text"
@@ -47,8 +51,11 @@
               <button type="submit" class="btn btn-primary mb-3">Log-in</button>
               <p>
                 Ainda não é usuário?
-                <a href="{{ url_for('profOuAluno')}}">Registrar</a>
+                <a href="{{ url_for('registerES')}}">Registrar</a>
               </p>
+              {% if mensagem %}
+              <p class="error-message" style="color: brown">{{ mensagem }}</p>
+              {% endif %}
             </div>
           </form>
         </div>

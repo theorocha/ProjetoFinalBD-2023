@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_login import LoginManager
+from functools import wraps
 import mysql.connector
 from app import app
+app.secret_key = 'TheoS2'
 
 config = {
     'user': 'root',
@@ -9,26 +12,39 @@ config = {
     'database': 'trabalhobd'
 }
 
+def login_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if 'usuario' not in session:
+            return redirect(url_for('login'))
+        return func(*args, **kwargs)
+    return decorated_function
 
-@app.route('/')
-def main():
-    try:
-        cnx = mysql.connector.connect(**config)
-        cursor = cnx.cursor(dictionary=True)
-        query = "SELECT * FROM Estudantes"
-        cursor.execute(query)
-        estudantes = cursor.fetchall()
-        cursor.close()
-        cnx.close()
-        return render_template('extends.html', estudantes = estudantes)
 
-    except mysql.connector.Error as err:
-        return f"Erro de conexão ao banco de dados: {err}"
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        matricula = request.form['matricula']
+        senha = request.form['senha']
+
+        if verificar_credenciais(matricula, senha):
+            usuario = obter_usuario(matricula)
+            session['usuario'] = usuario
+            return redirect(url_for('departamentos'))
+        
+        else:
+            mensagem = 'Matrícula ou senha inválidos. Tente novamente.'
+            return render_template('login.html', mensagem=mensagem)
+    return render_template('login.html')
+
+   
     
 
 @app.route('/departamentos')
+@login_required
 def departamentos():
     try:
+        usuario = session['usuario']
         cnx = mysql.connector.connect(**config)
         cursor = cnx.cursor(dictionary=True)
         query = "SELECT * FROM Departamentos"
@@ -36,13 +52,14 @@ def departamentos():
         departamentos = cursor.fetchall()
         cursor.close()
         cnx.close()
-        return render_template('dpt.html', departamentos = departamentos)
+        return render_template('dpt.html', departamentos = departamentos, usuario=usuario)
 
     except mysql.connector.Error as err:
         return f"Erro de conexão ao banco de dados: {err}"
     
 
 @app.route('/disciplinas/<dpt_id>')
+@login_required
 def disciplinas(dpt_id):
     try:
         cnx = mysql.connector.connect(**config)
@@ -63,6 +80,7 @@ def disciplinas(dpt_id):
     
     
 @app.route('/turmas/<disciplina_id>')
+@login_required
 def turmas(disciplina_id):
     try:
         cnx = mysql.connector.connect(**config)
@@ -96,7 +114,8 @@ def registerES():
             cnx.close()
         
             if result:
-                return "A matrícula já está em uso. Por favor, escolha outra matrícula."
+                mensagem ='Matrícula já cadastrada. Faça Login.'
+                return render_template('login.html', mensagem=mensagem)
             
             
             nome = request.form['nome']
@@ -116,7 +135,7 @@ def registerES():
                 cursor.close()
                 cnx.close()
     
-                return redirect('/login') 
+                return redirect('/') 
     
             except mysql.connector.Error as err:
                 return f"Erro de conexão ao banco de dados: {err}"
@@ -128,6 +147,7 @@ def registerES():
     
 
 @app.route('/registerPR', methods=['GET', 'POST'])
+@login_required
 def registerPR():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -145,7 +165,7 @@ def registerPR():
             cursor.close()
             cnx.close()
 
-            return redirect('/login') 
+            return redirect('/') 
 
         except mysql.connector.Error as err:
             return f"Erro de conexão ao banco de dados: {err}"
@@ -164,16 +184,13 @@ def registerPR():
 
         except mysql.connector.Error as err:
             return f"Erro de conexão ao banco de dados: {err}"
+        
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-
-@app.route('/temp')
-def profOuAluno():
-    return render_template('pa.html')
 
 
 
@@ -271,6 +288,8 @@ def obter_nome_departamento(departamento_id):
         return None
     
 
+    
+
 def obter_nome_disciplina(disciplina_id):
     try:
         cnx = mysql.connector.connect(**config)
@@ -284,5 +303,39 @@ def obter_nome_disciplina(disciplina_id):
 
     except mysql.connector.Error as err:
         return None
+
+
+
+def verificar_credenciais(matricula, senha):
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor()
+    query = "SELECT * FROM Estudantes WHERE matricula = %s AND senha = %s"
+    values = (matricula, senha)
+    cursor.execute(query, values)
+    result = cursor.fetchone()
+    cursor.close()
+    cnx.close()
+    return result is not None
+
+
+
+def obter_usuario(matricula):
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor(dictionary=True)
+    query = "SELECT * FROM Estudantes WHERE matricula = %s"
+    values = (matricula,)
+    cursor.execute(query, values)
+    usuario = cursor.fetchone()
+    cursor.close()
+    cnx.close()
+    return usuario
+
+
+
     
+
+    
+
+    
+
 

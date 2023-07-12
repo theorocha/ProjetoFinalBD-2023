@@ -12,6 +12,9 @@
   <body>
     <div class="mt-5 container">
       <h1 class="text-center mb-5">Registro de Estudante</h1>
+      <a href="{{url_for('login')}}" class="btn btn-primary mb-2"
+        >Voltar para Login</a
+      >
       <form
         class="form-control"
         method="POST"
@@ -79,7 +82,9 @@
             required
           />
         </div>
-        <button type="submit" class="btn btn-primary">Registrar</button>
+        <div class="text-center my-5">
+          <button type="submit" class="btn btn-primary w-25">Registrar</button>
+        </div>
       </form>
     </div>
   </body>
