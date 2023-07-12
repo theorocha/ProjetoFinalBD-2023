@@ -1,6 +1,6 @@
 {% extends 'base.html'%} {% block conteudo%}
 <div class="container">
-  <h1 class="text-center mb-5">Turmas de {{disciplina['nome']}}</h1>
+  <h1 class="text-center my-5">Turmas de {{disciplina['nome']}}</h1>
   <a
     href="{{url_for('disciplinas', dpt_id=disciplina['departamento_id'])}}"
     class="btn btn-primary mb-3"

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 import mysql.connector
 from app import app
 
@@ -79,8 +79,172 @@ def turmas(disciplina_id):
 
     except mysql.connector.Error as err:
         return f"Erro de conexão ao banco de dados: {err}"
+    
 
     
+@app.route('/registerES', methods=['GET', 'POST'])
+def registerES():
+    if request.method == 'POST':
+        matricula = request.form['matricula']
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor()
+            query = "SELECT id FROM Estudantes WHERE matricula = %s"
+            cursor.execute(query, (matricula,))
+            result = cursor.fetchone()
+            cursor.close()
+            cnx.close()
+        
+            if result:
+                return "A matrícula já está em uso. Por favor, escolha outra matrícula."
+            
+            
+            nome = request.form['nome']
+            email = request.form['email']
+            curso = request.form['curso']
+            senha = request.form['senha']
+            foto = request.files['foto']
+            foto_data = foto.read()
+            
+            try:
+                cnx = mysql.connector.connect(**config)
+                cursor = cnx.cursor()
+                query = "INSERT INTO Estudantes (nome, matricula, email, curso, senha, foto) VALUES (%s, %s, %s, %s, %s, %s)"
+                values = (nome, matricula, email, curso, senha, foto_data)
+                cursor.execute(query, values)
+                cnx.commit()
+                cursor.close()
+                cnx.close()
+    
+                return redirect('/login') 
+    
+            except mysql.connector.Error as err:
+                return f"Erro de conexão ao banco de dados: {err}"
+        
+        except mysql.connector.Error as err:
+            return f"Erro de conexão ao banco de dados: {err}"
+    else:
+        return render_template('registerES.html')
+    
+
+@app.route('/registerPR', methods=['GET', 'POST'])
+def registerPR():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        departamento_id = request.form['departamento']
+        matricula = request.form['matricula']
+        
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor()
+            query = "INSERT INTO Professores (nome, email, departamento_id, matricula) VALUES (%s, %s, %s, %s)"
+            values = (nome, email, departamento_id, matricula)
+            cursor.execute(query, values)
+            cnx.commit()
+            cursor.close()
+            cnx.close()
+
+            return redirect('/login') 
+
+        except mysql.connector.Error as err:
+            return f"Erro de conexão ao banco de dados: {err}"
+
+    else:
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor(dictionary=True)
+            query = "SELECT id, nome FROM Departamentos"
+            cursor.execute(query)
+            departamentos = cursor.fetchall()
+            cursor.close()
+            cnx.close()
+
+            return render_template('registerPR.html', departamentos=departamentos)
+
+        except mysql.connector.Error as err:
+            return f"Erro de conexão ao banco de dados: {err}"
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/temp')
+def profOuAluno():
+    return render_template('pa.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #################################################################################################

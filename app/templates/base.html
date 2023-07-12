@@ -8,53 +8,60 @@
       href="../static/bootstrap-5.3.0-dist/css/bootstrap.min.css"
     />
     <title>Meu App</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container-fluid {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content {
+        flex: 1;
+      }
+    </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li>
-              <h2 class="me-5">UnB</h2>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link active"
-                aria-current="page"
-                href="{{url_for('departamentos')}}"
-                >Home</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Meu perfil</a>
-            </li>
-            <div class="ms-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#">Sair</a>
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li>
+                <h2 class="me-5">UnB</h2>
               </li>
-            </div>
-          </ul>
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  aria-current="page"
+                  href="{{url_for('departamentos')}}"
+                  >Home</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Meu perfil</a>
+              </li>
+              <div class="ms-auto">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{url_for('login')}}">Logout</a>
+                </li>
+              </div>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
-    {% block conteudo%} {% endblock conteudo%}
-    <footer
-      class="footer bg-light py-4"
-      style="bottom: 0; width: 100%; height: 5%"
-    >
-      <div
-        class="container"
-        style="
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-        "
-      >
-        <p style="margin: 0; text-align: center">
-          &copy; 2023 Theo Rocha. Todos os direitos reservados.
-        </p>
-      </div>
-    </footer>
+      </nav>
+      <div class="content">{% block conteudo%} {% endblock conteudo%}</div>
+      <footer class="footer bg-light py-4">
+        <div class="container text-center">
+          <p>&copy; 2023 Theo Rocha. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registre-se</title>
+    <link
+      rel="stylesheet"
+      href="../static/bootstrap-5.3.0-dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="mt-5 container">
+      <h1 class="text-center mb-5">Cadastro de Professor</h1>
+      <form
+        method="POST"
+        action="{{ url_for('registerPR') }}"
+        class="form-control"
+      >
+        <div class="mb-3">
+          <label for="nome" class="form-label">Nome</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nome"
+            name="nome"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="departamento" class="form-label">Departamento</label>
+          <select
+            class="form-select"
+            id="departamento"
+            name="departamento"
+            required
+          >
+            <option selected disabled>Selecione um departamento</option>
+            {% for departamento in departamentos %}
+            <option value="{{ departamento.id }}">
+              {{ departamento.nome }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="matricula" class="form-label">Matrícula</label>
+          <input
+            type="text"
+            class="form-control"
+            id="matricula"
+            name="matricula"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+      </form>
+    </div>
+  </body>
+</html>
