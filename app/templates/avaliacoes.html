@@ -1,25 +1,38 @@
 {% extends 'base.html' %} {% block conteudo %}
 <div class="container">
   <h1 class="text-center my-4">Avaliações da Turma {{turma_id}}</h1>
-  <a
-    href="{{url_for('formaval', turma_id = turma_id)}}"
-    class="btn btn-outline-primary"
-    >Avaliar turma</a
-  >
+    <a
+      class="btn btn-outline-dark ms-5"
+      href="{{url_for('turmas', disciplina_id = disciplina)}}"
+      >Voltar para turma</a
+    >
+    <a
+      href="{{url_for('formaval', turma_id = turma_id)}}"
+      class="btn btn-outline-primary"
+      >Avaliar turma</a
+    >
+  </p>
+
   <div class="row">
     {% for avaliacao in avaliacoes %}
     <div class="col-md-4 mt-5">
       <div class="card mb-3">
         <div class="card-body">
-          <h5 class="card-title">Avaliação {{ avaliacao.id }}</h5>
+          <h5 class="card-title text-center mb-5">Avaliação</h5>
 
           <p class="card-text">
-            Nome do Estudante: {{ avaliacao.nome_estudante }}
+            <strong> Nome do Estudante: </strong> {{ avaliacao.nome_estudante }}
           </p>
-          <p class="card-text">Nota: {{ avaliacao.nota }}</p>
-          <p class="card-text mb-4">Comentário: {{ avaliacao.comentario }}</p>
+          <p class="card-text"><strong> Nota: </strong> {{ avaliacao.nota }}</p>
+          <p class="card-text mb-4">
+            <strong> Comentário: </strong> {{ avaliacao.comentario }}
+          </p>
           <div class="text-center mt-3 p-1">
-            <a href="#" class="btn btn-outline-danger">Denunciar avaliação</a>
+            <a
+              href="{{url_for('denunciar', id = avaliacao.id)}}"
+              class="btn btn-outline-danger"
+              >Denunciar avaliação</a
+            >
           </div>
         </div>
       </div>

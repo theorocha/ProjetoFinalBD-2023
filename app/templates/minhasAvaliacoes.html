@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block conteudo %}
+<div class="container">
+  <h1 class="text-center my-4">Minhas Avaliações</h1>
+  <div class="row">
+    {% for avaliacao in avaliacoes %}
+    <div class="col-md-4 mt-5">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5
+            class="card-title text-center mb-3"
+            style="color: rgb(21, 39, 206)"
+          >
+            Minha Avaliação
+          </h5>
+          <p class="card-text">
+            <strong> Disciplina: </strong> {{ avaliacao.nome_disciplina }}
+          </p>
+          <p class="card-text"><strong> Nota: </strong> {{ avaliacao.nota }}</p>
+          <p class="card-text">
+            <strong> Comentário: </strong> {{ avaliacao.comentario }}
+          </p>
+          <a
+            href="{{url_for('excluiraval', id = avaliacao.id)}}"
+            class="btn btn-outline-danger"
+            >Excluir Avaliação</a
+          >
+          <a
+            href="{{url_for('editaval', id = avaliacao.id)}}"
+            class="btn btn-outline-primary"
+            >Editar Avaliação</a
+          >
+        </div>
+      </div>
+    </div>
+    {% if loop.index % 3 == 0 %}
+  </div>
+  <div class="row">{% endif %} {% endfor %}</div>
+</div>
+{% endblock %}

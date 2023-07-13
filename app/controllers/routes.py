@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash,get_flashed_messages
 from flask_login import LoginManager
 from functools import wraps
+
 import mysql.connector
 from app import app
 app.secret_key = 'TheoS2'
@@ -354,7 +355,13 @@ def avaliacoes(turma_id):
         cursor.close()
         cnx.close()
 
-        return render_template('avaliacoes.html', avaliacoes=avaliacoes, turma_id=turma_id)
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query_disciplina_id = f"SELECT disciplina_id FROM Turmas WHERE id = {turma_id}"
+        cursor.execute(query_disciplina_id)
+        disciplina_id = cursor.fetchone()['disciplina_id']
+
+        return render_template('avaliacoes.html', avaliacoes=avaliacoes, turma_id=turma_id, disciplina = disciplina_id)
 
     except mysql.connector.Error as err:
         return f"Erro de conexão ao banco de dados: {err}"
@@ -362,7 +369,7 @@ def avaliacoes(turma_id):
 @app.route('/formaval/<int:turma_id>')
 @login_required
 def formaval(turma_id):
-    return render_template('formAval.html', turma_id = turma_id)
+        return render_template('formAval.html', turma_id = turma_id)
 
 @app.route('/criaval/<int:turma_id>', methods=['GET', 'POST'])
 @login_required
@@ -388,6 +395,230 @@ def criaval(turma_id):
             return f"Erro ao cadastrar avaliação: {err}"
     
     return redirect(url_for('avaliacoes', turma_id=turma_id))
+
+@app.route('/minhasavaliacoes')
+@login_required
+def minhasAvaliacoes():
+    try:
+        estudante_id = session['usuario']['id']
+        
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        query = f"""
+            SELECT a.id, a.nota, a.comentario, t.id AS turma_id, d.nome AS nome_disciplina
+            FROM Avaliacoes a
+            INNER JOIN Turmas t ON a.turma_id = t.id
+            INNER JOIN Disciplinas d ON t.disciplina_id = d.id
+            WHERE a.estudante_id = {estudante_id}
+        """
+        
+        cursor.execute(query)
+        avaliacoes = cursor.fetchall()
+        
+        cursor.close()
+        cnx.close()
+        
+        return render_template('minhasAvaliacoes.html', avaliacoes=avaliacoes)
+    
+    except mysql.connector.Error as err:
+        return f"Erro de conexão ao banco de dados: {err}"
+
+@app.route('/excluiraval/<int:id>')
+@login_required
+def excluiraval(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "DELETE FROM Avaliacoes WHERE id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        
+        return redirect(url_for('minhasAvaliacoes'))
+    
+    except mysql.connector.Error as err:
+        return f"Erro ao excluir avaliação: {err}"
+
+@app.route('/editaval/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editaval(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query = "SELECT * FROM Avaliacoes WHERE id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+        avaliacao = cursor.fetchone()
+        cursor.close()
+        cnx.close()
+        
+        if request.method == 'POST':
+            nota = request.form['nota']
+            comentario = request.form['comentario']
+            
+            try:
+                cnx = mysql.connector.connect(**config)
+                cursor = cnx.cursor(dictionary=True)
+                query = "UPDATE Avaliacoes SET nota = %s, comentario = %s WHERE id = %s"
+                values = (nota, comentario, id)
+                cursor.execute(query, values)
+                cnx.commit()
+                cursor.close()
+                cnx.close()
+                
+                return redirect(url_for('minhasAvaliacoes'))
+            
+            except mysql.connector.Error as err:
+                return f"Erro ao editar avaliação: {err}"
+        
+        return render_template('editaval.html', avaliacao=avaliacao)
+    
+    except mysql.connector.Error as err:
+        return f"Erro ao editar avaliação: {err}"
+    
+
+
+@app.route('/denunciar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def denunciar(id):
+    if request.method == 'POST':
+        motivo = request.form['motivo']
+        estudante_id = session['usuario']['id']
+
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor()
+
+            query_avaliacao = "SELECT turma_id FROM Avaliacoes WHERE id = %s"
+            cursor.execute(query_avaliacao, (id,))
+            turma_id = cursor.fetchone()[0]
+
+            
+            query_denuncia = "INSERT INTO Denuncias (avaliacao_id, estudante_id, motivo) VALUES (%s,  %s, %s)"
+            values = (id, estudante_id, motivo)
+            cursor.execute(query_denuncia, values)
+
+            cnx.commit()
+            cursor.close()
+            cnx.close()
+            return redirect(url_for('avaliacoes', turma_id=turma_id))
+
+        except mysql.connector.Error as err:
+            return f"Erro ao denunciar avaliação: {err}"
+
+    return render_template('denunciar.html', id=id)
+
+
+@app.route('/alld')
+@login_required
+def alld():
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor(dictionary=True)
+        query = """
+            SELECT d.id, d.motivo, a.comentario, a.id AS avaliacao_id, a.estudante_id, e.nome AS nome_estudante
+            FROM Denuncias d
+            INNER JOIN Avaliacoes a ON d.avaliacao_id = a.id
+            INNER JOIN Estudantes e ON d.estudante_id = e.id
+        """
+
+        cursor.execute(query)
+        denuncias = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+
+        return render_template('alld.html', denuncias=denuncias)
+
+    except mysql.connector.Error as err:
+        return f"Erro de conexão ao banco de dados: {err}"
+    
+@app.route('/ignorar_denuncia/<int:id>', methods=['GET', 'POST'])
+@login_required
+def ignorar_denuncia(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+        query = "DELETE FROM Denuncias WHERE id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+
+        flash("Denúncia ignorada com sucesso!", "success")
+        return redirect(url_for('alld'))
+
+    except mysql.connector.Error as err:
+        return f"Erro ao ignorar denúncia: {err}"
+
+
+
+@app.route('/apagar_avaliacao/<int:id>')
+@login_required
+def apagar_avaliacao(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+
+        
+        query_denuncias = "DELETE FROM Denuncias WHERE avaliacao_id = %s"
+        values_denuncias = (id,)
+        cursor.execute(query_denuncias, values_denuncias)
+
+        
+        query_avaliacao = "DELETE FROM Avaliacoes WHERE id = %s"
+        values_avaliacao = (id,)
+        cursor.execute(query_avaliacao, values_avaliacao)
+
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+
+        flash("Avaliação excluída com sucesso!", "success")
+        return redirect(url_for('alld'))
+
+    except mysql.connector.Error as err:
+        return f"Erro ao apagar avaliação: {err}"
+
+
+
+@app.route('/apagar_usuario/<int:id>', methods=['GET', 'POST'])
+@login_required
+def apagar_usuario(id):
+    try:
+        cnx = mysql.connector.connect(**config)
+        cursor = cnx.cursor()
+
+        query = "DELETE FROM Denuncias WHERE estudante_id = %s"
+        values = (id,)
+        cursor.execute(query, values)
+
+       
+        query = "DELETE FROM Avaliacoes WHERE estudante_id = %s"
+        cursor.execute(query, values)
+
+      
+        query = "DELETE FROM Estudantes WHERE id = %s"
+        cursor.execute(query, values)
+
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+
+        flash("Usuário apagado com sucesso!", "success")
+        return redirect(url_for('alld'))
+
+    except mysql.connector.Error as err:
+        return f"Erro ao apagar usuário: {err}"
+
+
+
+
+
+
     
 
 #################################################################################################
@@ -454,6 +685,7 @@ def obter_usuario(matricula):
     cursor.close()
     cnx.close()
     return usuario
+
 
 
 

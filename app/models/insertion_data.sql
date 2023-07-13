@@ -141,3 +141,8 @@ VALUES (13,9);
 INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('2', '1', '7', 'aula aceitavel');
 INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('1', '1', '4', 'aula muito chata');
 INSERT INTO `trabalhobd`.`avaliacoes` (`estudante_id`, `turma_id`, `nota`, `comentario`) VALUES ('1', '1', '10', 'Turma e professores muito bons');
+
+--denúncias
+INSERT INTO `trabalhobd`.`denuncias` (`avaliacao_id`, `estudante_id`, `motivo`) VALUES ('7', '2', 'ok');
+INSERT INTO `trabalhobd`.`denuncias` (`avaliacao_id`, `estudante_id`, `motivo`) VALUES ('9', '3', 'legal');
+INSERT INTO `trabalhobd`.`denuncias` (`avaliacao_id`, `estudante_id`, `motivo`) VALUES ('10', '4', 'chato');

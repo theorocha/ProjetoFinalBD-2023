@@ -1,0 +1,24 @@
+{% extends 'base.html' %} {% block conteudo %}
+<div class="container">
+  <h1 class="text-center my-4">Denunciar Avaliação</h1>
+  <form
+    method="POST"
+    action="{{ url_for('denunciar', id=id) }}"
+    class="form-control p-5"
+  >
+    <div class="form-group">
+      <label for="motivo">Motivo da Denúncia</label>
+      <textarea
+        class="form-control mb-5"
+        id="motivo"
+        name="motivo"
+        rows="5"
+        required
+      ></textarea>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-danger w-25">Denunciar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

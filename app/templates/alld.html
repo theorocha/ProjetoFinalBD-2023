@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block conteudo %} {% if
+session['usuario']['matricula'] == '00' %}
+<div class="container">
+  <h1 class="text-center my-4">Denúncias</h1>
+  <a class="btn btn-outline-dark ms-5" href="{{url_for('departamentos')}}"
+    >Voltar</a
+  >
+  <div class="row">
+    {% for denuncia in denuncias %}
+    <div class="col-md-4 mt-5">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-5" style="color: brown">
+            Avaliação denunciada
+          </h5>
+          <p class="card-text">
+            <strong>Estudante avaliador: </strong> {{ denuncia.nome_estudante }}
+          </p>
+          <p class="card-text">
+            <strong>Comentário da Avaliação:</strong> {{ denuncia.comentario }}
+          </p>
+          <p class="card-text mb-4">
+            <strong>Motivo da Denúncia:</strong> {{ denuncia.motivo }}
+          </p>
+          <a
+            href="{{ url_for('ignorar_denuncia', id=denuncia.id) }}"
+            class="btn btn-outline-success"
+            >Ignorar</a
+          >
+          <a
+            href="{{ url_for('apagar_avaliacao', id=denuncia.avaliacao_id) }}"
+            class="btn btn-outline-danger"
+            >Apagar avaliação</a
+          >
+          <a
+            href="{{ url_for('apagar_usuario', id=denuncia.estudante_id) }}"
+            class="btn btn-danger"
+            >Apagar usuário</a
+          >
+        </div>
+      </div>
+    </div>
+    {% if loop.index % 3 == 0 %}
+  </div>
+  <div class="row">{% endif %} {% endfor %}</div>
+</div>
+{% else %}
+<div class="text-center">
+  <h1 class="my-5">Sem Permissão para vizualizar essa sessão!</h1>
+  <a href="{{url_for('departamentos')}}" class="btn btn-danger w-50 h-50"
+    >Voltar</a
+  >
+</div>
+{% endif %} {% endblock %}
