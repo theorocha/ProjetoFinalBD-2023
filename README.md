@@ -4,6 +4,8 @@ Projeto é um sistema de avaliação das turmas da unb. Foi utilizado um servido
 conexão. Toda a lógica do projeto foi desenvolvida em Flask e o front-end usado jinja para renderização
 das páginas de uma maneira mais dinâmica.
 
+Os scripts para criação do banco de dados esta em app/models.
+
 
 ## Venv
 
