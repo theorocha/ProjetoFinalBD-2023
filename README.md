@@ -1,3 +1,10 @@
+## Sobre o projeto
+
+Projeto é um sistema de avaliação das turmas da unb. Foi utilizado um servidor remoto  do banco de dados MySQL, e usei o python-mysql-connector para 
+conexão. Toda a lógica do projeto foi desenvolvida em Flask e o front-end usado jinja para renderização
+das páginas de uma maneira mais dinâmica.
+
+
 ## Venv
 
 Para utilizar esse projeto é necessário a utilização de um ambiente virtual.
@@ -24,8 +31,4 @@ Para rodar o projeto basta utilizar:
 `  flask --app run run --debug
  `
 
-## Freezer requirements
 
-Para colocar as dependencias dentro do arquivo requirements:
-`  pip freeze > requirements.txt
- `
