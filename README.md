@@ -1,7 +1,7 @@
 ## Sobre o projeto
 
 Projeto é um sistema de avaliação das turmas da unb. Foi utilizado um servidor remoto  do banco de dados MySQL, e usei o python-mysql-connector para 
-conexão. Toda a lógica do projeto foi desenvolvida em Flask e o front-end usado jinja para renderização
+conexão. Toda a lógica do projeto foi desenvolvida em Flask e o front-end usado jinja e bootstrap para renderização
 das páginas de uma maneira mais dinâmica.
 
 ## Ambientação do MySQL
