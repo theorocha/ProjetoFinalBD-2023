@@ -592,17 +592,22 @@ def apagar_usuario(id):
         cnx = mysql.connector.connect(**config)
         cursor = cnx.cursor()
 
-        query = "DELETE FROM Denuncias WHERE estudante_id = %s"
-        values = (id,)
-        cursor.execute(query, values)
+        # Excluir denúncias relacionadas às avaliações do estudante
+        query_denuncias = """
+            DELETE d FROM Denuncias d
+            INNER JOIN Avaliacoes a ON d.avaliacao_id = a.id
+            WHERE a.estudante_id = %s
+        """
+        values_denuncias = (id,)
+        cursor.execute(query_denuncias, values_denuncias)
 
-       
-        query = "DELETE FROM Avaliacoes WHERE estudante_id = %s"
-        cursor.execute(query, values)
+        # Excluir avaliações do estudante
+        query_avaliacoes = "DELETE FROM Avaliacoes WHERE estudante_id = %s"
+        cursor.execute(query_avaliacoes, values_denuncias)
 
-      
-        query = "DELETE FROM Estudantes WHERE id = %s"
-        cursor.execute(query, values)
+        # Excluir o estudante
+        query_estudantes = "DELETE FROM Estudantes WHERE id = %s"
+        cursor.execute(query_estudantes, values_denuncias)
 
         cnx.commit()
         cursor.close()
@@ -613,6 +618,9 @@ def apagar_usuario(id):
 
     except mysql.connector.Error as err:
         return f"Erro ao apagar usuário: {err}"
+
+
+
 
 
 
