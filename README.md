@@ -20,6 +20,7 @@ o seu user do mysql, a senha , o host(em máquinas locais normalmente é localho
     'database': 'seu_schema'
 }`
 
+O adm do sistema deverá ter matrícula = 00.
 
 ## Venv
 
