@@ -182,15 +182,27 @@ def deleteProf(id):
     try:
         cnx = mysql.connector.connect(**config)
         cursor = cnx.cursor()
-        query = "DELETE FROM Professores WHERE id = %s"
-        values = (id,)
-        cursor.execute(query, values)
+
+        # Excluir turmas relacionadas ao professor
+        query_turmas = "DELETE FROM Turmas WHERE professor_id = %s"
+        values_turmas = (id,)
+        cursor.execute(query_turmas, values_turmas)
+
+        # Excluir o professor
+        query_professores = "DELETE FROM Professores WHERE id = %s"
+        values_professores = (id,)
+        cursor.execute(query_professores, values_professores)
+
         cnx.commit()
         cursor.close()
         cnx.close()
+
+        flash("Professor excluído com sucesso!", "success")
         return redirect(url_for('professores'))
+
     except mysql.connector.Error as err:
-        return f"Erro ao excluir estudante do banco de dados: {err}"
+        return f"Erro ao excluir professor do banco de dados: {err}"
+
 
 
 @app.route('/autodelete/<int:id>')
@@ -266,39 +278,24 @@ def updateProf():
 @app.route('/updateProfile',methods=['GET', 'POST'])
 @login_required
 def updateProfile():
-    try:
         nome = request.form['nome']
         email = request.form['email']
         curso = request.form['curso']
-        matricula = request.form['matricula']
+        # matricula = request.form['matricula']
         senha = request.form['senha']
-        cnx = mysql.connector.connect(**config)
-        cursor = cnx.cursor()
-        query = "SELECT id FROM Estudantes WHERE matricula = %s"
-        cursor.execute(query, (matricula,))
-        result = cursor.fetchone()
-        cursor.close()
-        cnx.close()
-        if result:
-            mensagem ='Matrícula já possui cadastro'
-            return render_template('edit_profile.html', mensagem=mensagem)
-        else:
-            try:
-                cnx = mysql.connector.connect(**config)
-                cursor = cnx.cursor()
-                query = "UPDATE Estudantes SET nome = %s, email = %s, curso = %s, matricula = %s, senha = %s WHERE id = %s"
-                values = (nome, email, curso, matricula, senha, session['usuario']['id'])
-                cursor.execute(query, values)
-                cnx.commit()
-                cursor.close()
-                cnx.close()
-                return redirect(url_for('login'))
+        try:
+            cnx = mysql.connector.connect(**config)
+            cursor = cnx.cursor()
+            query = "UPDATE Estudantes SET nome = %s, email = %s, curso = %s,  senha = %s WHERE id = %s"
+            values = (nome, email, curso, senha, session['usuario']['id'])
+            cursor.execute(query, values)
+            cnx.commit()
+            cursor.close()
+            cnx.close()
+            return redirect(url_for('login'))
 
-            except mysql.connector.Error as err:
+        except mysql.connector.Error as err:
                 return f"Erro ao atualizar dados do usuário no banco de dados: {err}"
-            
-    except mysql.connector.Error as err:
-        return f"Erro ao atualizar dados do usuário no banco de dados: {err}"
     
 @app.route('/professores')
 @login_required
