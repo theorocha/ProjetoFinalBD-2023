@@ -4,6 +4,8 @@ Projeto é um sistema de avaliação das turmas da unb. Foi utilizado um servido
 conexão. Toda a lógica do projeto foi desenvolvida em Flask e o front-end usado jinja e bootstrap para renderização
 das páginas de uma maneira mais dinâmica.
 
+Link da apresentação do projeto no youtube: https://youtu.be/J7lMcp5iEsw
+
 ## Ambientação do MySQL
 
 Os scripts para criação do banco de dados esta em app/models, portando basta configurar seu MySQL com seu usuário(root é o padrão) e senha.
